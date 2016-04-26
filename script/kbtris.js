@@ -207,6 +207,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 	}
 
 	function drop_piece() {
+		fall = 0;
 		tetrad.y = seek_down(tetrad) || tetrad.y;
 	}
 	function land_piece() {
