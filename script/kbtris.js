@@ -3,6 +3,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 	var TETRAD = ['o', 'j', 's', 'z', 'i', 'l', 't'];
 	var COLOR = [ "blue", "gold", "orange",
 				  "darkturquoise", "red", "fuchsia", "limegreen"];
+	var ORIENTATION = [ "flip", "ccw", "move", "cw" ];
 
 	var GPX = document.createElement("canvas");
 	var GPXctx = GPX.getContext("2d");
@@ -22,7 +23,12 @@ function KBTRIS(canvas, controls, pausemenu) {
 		shape: null,
 		x: 0,
 		y: 0,
-		rot: 0
+		rot: {
+			flip: null,
+			ccw: null,
+			move: null,
+			cw: null
+		}
 	};
 	var lines = 0;
 	var fixoffset = 0;
@@ -33,6 +39,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 	var max = 0;
 	var keys = {};
 	var labels = [];
+	var rotlabels = [];
 	var ctx = canvas.getContext("2d");
 	var elm = {
 		controls: controls
@@ -41,14 +48,17 @@ function KBTRIS(canvas, controls, pausemenu) {
 
 
 	function parse_controls() {
-		var rows = [ "flip", "ccw", "move", "cw" ]
 		var col = 0;
 		var input = null;
 		keys = {};
 		labels = [];
-		rows.every(function(row) {
+		rotlabels = [];
+		ORIENTATION.every(function(row) {
 			for(col = 0; col < 10; ++col) {
 				if((input = elm.controls.querySelector("#" +row + col))) {
+					if(!col) {
+						rotlabels.push(input.value);
+					}
 					keys[input.value] = {
 						col: col,
 						rot: row
@@ -73,6 +83,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 	function build_tetrad(shape) {
 		var piece = null;
 		var color = null;
+		var tet = null;
 		switch(TETRAD[shape]) {
 		case 'o':
 			piece = [{x: 0, y: 1}, {x: 1, y: 1}, {x: 1, y: 0}];
@@ -98,13 +109,20 @@ function KBTRIS(canvas, controls, pausemenu) {
 		default:
 			break;
 		}
-		return {
+		tet = {
 			piece: piece,
 			color: shape, //COLOR[shape],
 			x: 4,
 			y: 0,
-			rot: 0
+			rot: {}
 		};
+		ORIENTATION.every(function(dir) {
+			tet.rot[dir] = {
+				piece: rotate_piece(tet, dir)
+			};
+			return true;
+		});
+		return tet;
 	}
 
 	function draw_empty(x, y) {
@@ -204,7 +222,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 		}
 	}
 
-	function draw_tetrad(shape, x, y, clear, shadow) {
+	function draw_tetrad(shape, x, y, clear, shadow, rot) {
 		var i = 0;
 		var down = null;
 		var tet = null;
@@ -218,7 +236,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 		} else {
 			tet = build_tetrad(shape);
 		}
-		var piece = tet.piece;
+		var piece = rot ? tet.rot[rot].piece : tet.piece;
 		var color = clear ? null : (shadow ? COLOR.length : tet.color);
 		draw_block(x, y, color, !clear);
 		for(i = 0; i < 3; ++i) {
@@ -231,6 +249,13 @@ function KBTRIS(canvas, controls, pausemenu) {
 		for(i = 0; i < SHOWNEXT; ++i) {
 			draw_tetrad(next[i], 12, (i * 3) + 2);
 		}
+	}
+
+	function draw_orientations() {
+		ORIENTATION.every(function(rot, idx) {
+			draw_tetrad(tetrad.color, -3, (idx * 3.333) + 7, null, null, rot);
+			return true;
+		});
 	}
 
 	function next_piece() {
@@ -261,11 +286,29 @@ function KBTRIS(canvas, controls, pausemenu) {
 		tetrad.x = col;
 		return true;
 	}
-	function rotate_piece(amt) {
+
+	// really "orient_tetrad", but whatever
+	function rotate_tetrad(amt) {
+		var i = 0;
+		var block = null;
+		for(i = 0; i < 3; ++i) {
+			block = tetrad.rot[amt].piece[i];
+			if(tetrad.x + block.x < 0 || tetrad.x + block.x > 9 ||
+			   tetrad.y + block.y > 19 ||
+			   (tetrad.y + block.y >= 0 &&
+				grid[tetrad.y + block.y][tetrad.x + block.x])) {
+				return false;
+			}
+		}
+		tetrad.piece = tetrad.rot[amt].piece;
+		return true;
+	}
+
+	//helper for build_tetrad
+	function rotate_piece(tetrad, amt) {
 		var i = 0;
 		var tmp = null;
 		var block = null;
-		var rot = tetrad.rot || 0;
 		var piece = [];
 		for(i = 0; i < 3; ++i) {
 			piece[i] = {
@@ -273,23 +316,6 @@ function KBTRIS(canvas, controls, pausemenu) {
 				y: tetrad.piece[i].y
 			};
 		}
-
-		// hack: row per orientation
-		var map = [
-			{move: "move", cw: "cw", flip: "flip", ccw: "ccw"},
-			{move: "ccw", cw: "move", flip: "cw", ccw: "flip"},
-			{move: "flip", cw: "ccw", flip: "move", ccw: "cw"},
-			{move: "cw", cw: "flip", flip: "ccw", ccw: "move"}
-		];
-		var rotmap = [
-			{move: 0, cw: 1, flip: 2, ccw: 3},
-			{move: 1, cw: 2, flip: 3, ccw: 0},
-			{move: 2, cw: 3, flip: 0, ccw: 1},
-			{move: 3, cw: 0, flip: 1, ccw: 2}
-		];
-		amt = map[rot][amt];
-		rot = rotmap[rot][amt];
-
 		switch(amt) {
 		case "ccw":
 			for(i = 0; i < 3; ++i) {
@@ -323,9 +349,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 				return false;
 			}
 		}
-		tetrad.piece = piece;
-		tetrad.rot = rot;
-		return true;
+		return piece;
 	}
 
 	function pause() {
@@ -362,7 +386,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 			} else if(!scoot) {
 				return;
 			}
-			rotate_piece(cmd.rot);
+			rotate_tetrad(cmd.rot);
 			if(!move_piece(cmd.col)) {
 				if(cmd.col < 1) {
 					move_piece(cmd.col + 1);
@@ -504,12 +528,13 @@ function KBTRIS(canvas, controls, pausemenu) {
 
 		//stats
 		ctx.fillRect(canvas.width / 22 * 1, canvas.height / 22 * 1,
-					 canvas.width / 22 * 4, canvas.height / 22 * 2);
-		ctx.fillRect(canvas.width / 22 * 1, canvas.height / 22 * 4,
-					 canvas.width / 22 * 4, canvas.height / 22 * 2);
+					 canvas.width / 22 * 4, canvas.height / 22 * 5);
+		ctx.fillRect(canvas.width / 22 * 1, canvas.height / 22 * 7,
+					 canvas.width / 22 * 4, canvas.height / 22 * 14);
+/*
 		ctx.fillRect(canvas.width / 22 * 1, canvas.height / 22 * 7,
 					 canvas.width / 22 * 4, canvas.height / 22 * 2);
-
+*/
 		ctx.globalAlpha = 1;
 		ctx.textBaseline = "bottom";
 		ctx.textAlign = "center";
@@ -522,11 +547,9 @@ function KBTRIS(canvas, controls, pausemenu) {
 		ctx.fillText("LINES", canvas.width / 22, canvas.height / 22 * 2);
 		ctx.fillText(pad(lines), canvas.width / 22, canvas.height / 22 * 3);
 
-		ctx.fillText("LPM", canvas.width / 22, canvas.height / 22 * 5);
-		ctx.fillText(pad(lpm), canvas.width / 22, canvas.height / 22 * 6);
-
-		ctx.fillText("MAX LPM", canvas.width / 22, canvas.height / 22 * 8);
-		ctx.fillText(pad(max), canvas.width / 22, canvas.height / 22 * 9);
+		ctx.fillText("LPM/MAX", canvas.width / 22, canvas.height / 22 * 4);
+		ctx.fillText(pad(lpm), canvas.width / 22, canvas.height / 22 * 5);
+		ctx.fillText(pad(max), canvas.width / 22, canvas.height / 22 * 6);
 
 		ctx.textAlign = "center";
 		for(x = 0; x < 10; ++x) {
@@ -557,9 +580,19 @@ function KBTRIS(canvas, controls, pausemenu) {
 			//next
 			draw_next();
 
+			//orientations
+			draw_orientations();
+			ctx.textAlign = "left";
+			for(y = 0; y < ORIENTATION.length; ++y) {
+				ctx.fillText(rotlabels[y],
+							 canvas.width / 22 * 1,
+							 canvas.height / 22 * ((y * 3.333) + 9));
+			}
+
 			tick();
 
 			if(self.practice) {
+				ctx.textAlign = "center";
 				ctx.fillText("PRACTICE", canvas.width / 2, canvas.height / 2);
 			}
 		} else {
