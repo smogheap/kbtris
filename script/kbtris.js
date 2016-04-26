@@ -174,10 +174,19 @@ function KBTRIS(canvas, controls, pausemenu) {
 		if(run) {
 			run = false;
 			self.halt = true;
-			alert("GAME OVER");
-			pausemenu.classList.toggle("hidden", true);
-			if(mode) {
-				mode("title");
+			alert([
+				"GAME OVER",
+				"",
+				"Lines: " + lines,
+				"Max lines per minute: " + max,
+			].join("\n"));
+			if(self.practice) {
+				reset();
+			} else {
+				pausemenu.classList.toggle("hidden", true);
+				if(mode) {
+					mode("title");
+				}
 			}
 		}
 	}
