@@ -341,15 +341,6 @@ function KBTRIS(canvas, controls, pausemenu) {
 		default:
 			break;
 		}
-		for(i = 0; i < 3; ++i) {
-			block = piece[i];
-			if(tetrad.x + block.x < 0 || tetrad.x + block.x > 9 ||
-			   tetrad.y + block.y > 19 ||
-			   (tetrad.y + block.y >= 0 &&
-				grid[tetrad.y + block.y][tetrad.x + block.x])) {
-				return false;
-			}
-		}
 		return piece;
 	}
 
