@@ -21,7 +21,8 @@ function KBTRIS(canvas, controls, pausemenu) {
 	var tetrad = {
 		shape: null,
 		x: 0,
-		y: 0
+		y: 0,
+		rot: 0
 	};
 	var lines = 0;
 	var fixoffset = 0;
@@ -101,7 +102,8 @@ function KBTRIS(canvas, controls, pausemenu) {
 			piece: piece,
 			color: shape, //COLOR[shape],
 			x: 4,
-			y: 0
+			y: 0,
+			rot: 0
 		};
 	}
 
@@ -263,6 +265,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 		var i = 0;
 		var tmp = null;
 		var block = null;
+		var rot = tetrad.rot || 0;
 		var piece = [];
 		for(i = 0; i < 3; ++i) {
 			piece[i] = {
@@ -270,6 +273,23 @@ function KBTRIS(canvas, controls, pausemenu) {
 				y: tetrad.piece[i].y
 			};
 		}
+
+		// hack: row per orientation
+		var map = [
+			{move: "move", cw: "cw", flip: "flip", ccw: "ccw"},
+			{move: "ccw", cw: "move", flip: "cw", ccw: "flip"},
+			{move: "flip", cw: "ccw", flip: "move", ccw: "cw"},
+			{move: "cw", cw: "flip", flip: "ccw", ccw: "move"}
+		];
+		var rotmap = [
+			{move: 0, cw: 1, flip: 2, ccw: 3},
+			{move: 1, cw: 2, flip: 3, ccw: 0},
+			{move: 2, cw: 3, flip: 0, ccw: 1},
+			{move: 3, cw: 0, flip: 1, ccw: 2}
+		];
+		amt = map[rot][amt];
+		rot = rotmap[rot][amt];
+
 		switch(amt) {
 		case "ccw":
 			for(i = 0; i < 3; ++i) {
@@ -304,6 +324,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 			}
 		}
 		tetrad.piece = piece;
+		tetrad.rot = rot;
 		return true;
 	}
 
