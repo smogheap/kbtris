@@ -25,16 +25,15 @@ The row above the homerow moves the tetrad and rotates it counterclockwise.
 The row below moves and rotates clockwise.
 Number keys move and rotate 180 degrees.
 
-Space, as ever, drops the piece instantly.
+Space, as ever, drops the tetrad instantly.  Escape pauses.
 
-   columns: | | | | | | | | | | |
+     pause: esc
 rotate 180:  1 2 3 4 5 6 7 8 9 0
 rotate ccw:  q w e r t y u i o p
       move:  a s d f g h j k l ;
  rotate cw:  z x c v b n m , . /
       drop:       [ space ]
 
-ESC to pause.
 
 
 Advanced Moves
