@@ -375,6 +375,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 			return;
 		}
 		var cmd = null;
+		var rotated = false;
 		if(e.keyCode === 27) {
 			pause();
 			return;
@@ -387,7 +388,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 			} else if(!scoot) {
 				return;
 			}
-			rotate_tetrad(cmd.rot);
+			rotated = rotate_tetrad(cmd.rot);
 			if(!move_piece(cmd.col)) {
 				if(cmd.col < 1) {
 					move_piece(cmd.col + 1);
@@ -396,6 +397,9 @@ function KBTRIS(canvas, controls, pausemenu) {
 						move_piece(cmd.col - 2);
 					}
 				}
+			}
+			if(!rotated) {
+				rotate_tetrad(cmd.rot);
 			}
 			if(autodrop) {
 				drop_piece();
