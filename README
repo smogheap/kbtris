@@ -17,21 +17,21 @@ http://kbtris.penduin.net/
 Default Controls
 ----------------
 
-Pressing a homerow key moves the tetrad to the indicated column and orients
-it at the same time.  Note the cirle-marked pivot point of the tetrad --
-that's the bit which will end up in the column you type.
+Pressing a homerow key moves the tetrad to the indicated column and orients it
+to its default rotation at the same time.  Note the cirle-marked pivot point
+of the tetrad -- that's the bit which will end up in the column you type.
 
-The row above the homerow moves the tetrad and rotates it counterclockwise.
-The row below moves and rotates clockwise.
-Number keys move and rotate 180 degrees.
+The row above the homerow moves the tetrad and orients it counterclockwise.
+The row below moves and orients clockwise.
+Number keys move and orient to 180 degrees.
 
 Space, as ever, drops the tetrad instantly.  Escape pauses.
 
      pause: esc
-rotate 180:  1 2 3 4 5 6 7 8 9 0
-rotate ccw:  q w e r t y u i o p
+orient 180:  1 2 3 4 5 6 7 8 9 0
+orient ccw:  q w e r t y u i o p
       move:  a s d f g h j k l ;
- rotate cw:  z x c v b n m , . /
+ orient cw:  z x c v b n m , . /
       drop:       [ space ]
 
 
