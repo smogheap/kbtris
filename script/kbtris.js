@@ -256,9 +256,12 @@ function KBTRIS(canvas, controls, pausemenu) {
 
 	function draw_next() {
 		var i = 0;
+		//var alpha = ctx.globalAlpha;
 		for(i = 0; i < SHOWNEXT; ++i) {
+			//ctx.globalAlpha = 1 - ((i+1) / (SHOWNEXT+3));
 			draw_tetrad(next[i], 12, (i * 3) + 2);
 		}
+		//ctx.globalAlpha = alpha;
 	}
 
 	function draw_orientations() {
