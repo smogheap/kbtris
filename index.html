@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width">
 <style>
 html {
-  background: url("img/mir.jpg") no-repeat center center fixed;
+  background: #445 url("img/mir.jpg") no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -118,14 +118,14 @@ from {
 </head>
 <body>
 <div id="bottombar">
-Music:
-<select id="song" onchange="music(this.value);">
-<option value="audio/korobushka.ogg">Korobushka(Tendo)</option>
-<option value="audio/kalinka.ogg" selected>Kalinka(Tari)</option>
-</select>
+  Music:
+  <label><input type="radio" checked name="song" value="audio/korobushka.ogg" onchange="music(this.value);">Korobuska</label>
+  <label><input type="radio" name="song" value="audio/kalinka.ogg" onchange="music(this.value);">Kalinka</label>
 <audio id="bgm" src="audio/korobushka.ogg" controls loop></audio>
+<span id="links">
 <a href="credits.txt" target="_popup">Credits...</a>
 <a target="_new" href="https://github.com/smogheap/kbtris">[source code]</a>
+</span>
 </div>
 <div id="title">
 <img src="img/kbtris.jpg" title="KBtris" />
@@ -135,6 +135,7 @@ Music:
 <li id="liprac"><a href="#" onclick="mode('play'); game.practice=true; return false;">Practice</a></li>
 <li><a href="#" onclick="mode('controls'); return false;">Controls</a></li>
 <li><a href="#" onclick="mode('about'); return false;">About</a></li>
+<li id="exit" class="hidden"><a href="#" onclick="exit();">Exit</a></li>
 </ul>
 </div>
 <div id="play" class="hidden">
@@ -302,6 +303,15 @@ fastest possible play at the cost of scoot moves and any semblance of safety.
 </ul>
 </div>
 <script>
+  if(typeof(require) !== "undefined") {
+  document.querySelector("#exit").classList.remove("hidden");
+  document.querySelector("#links").classList.add("hidden");
+  const remote = require("electron").remote;
+  function exit() {
+  remote.getCurrentWindow().close();
+  }
+  } else {
+  }
 var game = null;
 function mode(mode) {
   document.querySelector("#liback").classList.add("hidden");
@@ -339,7 +349,6 @@ function music(path) {
   document.querySelector("#bgm").src = path;
   document.querySelector("#bgm").play();
 }
-document.querySelector("option").selected = true;  //silly browser
 </script>
 </body>
 </html>
