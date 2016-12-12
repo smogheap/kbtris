@@ -1,4 +1,4 @@
-function KBTRIS(canvas, controls, pausemenu) {
+function KBTRIS(canvas, controls, pausemenu, gameover) {
 	var SHOWNEXT = 6;
 	var TETRAD = ['o', 'j', 's', 'z', 'i', 'l', 't'];
 	var COLOR = [ "blue", "gold", "orange",
@@ -42,9 +42,22 @@ function KBTRIS(canvas, controls, pausemenu) {
 	var rotlabels = [];
 	var ctx = canvas.getContext("2d");
 	var elm = {
-		controls: controls
+		controls: controls,
+		gameover: gameover
 	};
 	var self = this;
+
+
+	function local_get(key) {
+		if(localStorage) {
+			return localStorage.getItem(key);
+		}
+	}
+	function local_set(key, val) {
+		if(localStorage) {
+			return localStorage.setItem(key, val);
+		}
+	}
 
 
 	function parse_controls() {
@@ -172,21 +185,60 @@ function KBTRIS(canvas, controls, pausemenu) {
 
 	function game_over() {
 		if(run) {
-			run = false;
+//			run = false;
 			self.halt = true;
+/*
 			alert([
 				"GAME OVER",
 				"",
 				"Lines: " + lines,
 				"Max lines per minute: " + max,
 			].join("\n"));
+*/
 			if(self.practice) {
 				reset();
 			} else {
-				pausemenu.classList.toggle("hidden", true);
-				if(mode) {
-					mode("title");
+				canvas.style.filter = "blur(0.25em)";
+				elm.gameover.querySelector("#lines").innerHTML = lines;
+				elm.gameover.querySelector("#lpm").innerHTML = lpm;
+				elm.gameover.querySelector("#max").innerHTML = max;
+
+				var hilines = Math.max(local_get("hilines") || 0, lines);
+				var hilpm = Math.max(local_get("hilpm") || 0, lpm);
+				var himax = Math.max(local_get("himax") || 0, max);
+				elm.gameover.querySelector("#hilines").innerHTML = hilines;
+				elm.gameover.querySelector("#hilpm").innerHTML = hilpm;
+				elm.gameover.querySelector("#himax").innerHTML = himax;
+				if(hilines === lines) {
+					elm.gameover.querySelector("#lines").className = "record";
+					elm.gameover.querySelector("#hilines").className = "record";
+				} else {
+					elm.gameover.querySelector("#lines").className = "";
+					elm.gameover.querySelector("#hilines").className = "";
 				}
+				if(hilpm === lpm) {
+					elm.gameover.querySelector("#lpm").className = "record";
+					elm.gameover.querySelector("#hilpm").className = "record";
+				} else {
+					elm.gameover.querySelector("#lpm").className = "";
+					elm.gameover.querySelector("#hilpm").className = "";
+				}
+				if(himax === max) {
+					elm.gameover.querySelector("#max").className = "record";
+					elm.gameover.querySelector("#himax").className = "record";
+				} else {
+					elm.gameover.querySelector("#max").className = "";
+					elm.gameover.querySelector("#himax").className = "";
+				}
+				local_set("hilines", hilines);
+				local_set("hilpm", hilpm);
+				local_set("himax", himax);
+
+				gameover.classList.toggle("hidden", false);
+				//pausemenu.classList.toggle("hidden", true);
+				//if(mode) {
+				//	mode("title");
+				//}
 			}
 		}
 	}
@@ -357,6 +409,9 @@ function KBTRIS(canvas, controls, pausemenu) {
 	}
 
 	function pause() {
+		if(self.halt) {
+			return;
+		}
 		var i = 0;
 		run = !run;
 		pausemenu.classList.toggle("hidden", run);
@@ -461,6 +516,8 @@ function KBTRIS(canvas, controls, pausemenu) {
 		resize();
 		run = true;
 		pausemenu.classList.toggle("hidden", run);
+		gameover.classList.toggle("hidden", run);
+		canvas.style.filter = null;
 
 		self.halt = false;
 		requestAnimationFrame(render);
@@ -604,7 +661,7 @@ function KBTRIS(canvas, controls, pausemenu) {
 				ctx.fillText("PRACTICE", canvas.width / 2, canvas.height / 2);
 			}
 		} else {
-			ctx.fillText("PAUSE", canvas.width / 2, canvas.height / 2);
+			ctx.fillText("PAUSE", canvas.width / 2, canvas.height / 4);
 		}
 	}
 

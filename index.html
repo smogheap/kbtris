@@ -67,12 +67,36 @@ th {
   bottom: 5em;
   width: 100%;
 }
-#pausemenu {
+#pausemenu, #gameover {
   position: absolute;
-  top: 50%;
+  top: 35%;
   width: 100%;
   text-align: center;
   background: rgba(255,255,255, 0.66);
+}
+#gameover table {
+  display: inline-block;
+  font-size: 140%;
+}
+#gameover table td, #gameover table th {
+  padding: 0.2em 0.5em;
+  text-align: right;
+}
+#gameover .record {
+  color: yellow;
+  font-weight: bold;
+  animation-duration: 0.25s;
+  animation-iteration-count: infinite;
+  animation-name: flash;
+  animation-timing-function: linear;
+}
+@keyframes flash {
+from {
+    color: black;
+  }
+  to {
+    color: yellow;
+  }
 }
 #bottombar {
   position: fixed;
@@ -118,8 +142,38 @@ Music:
 <div id="pausemenu" class="hidden">
 <ul>
 <li><a href="#" onclick="game.pause(); return false;">Resume</a></li>
-<li><a href="#" onclick="game.reset(); return false;">Reset</a></li>
+<li><a href="#" onclick="game.reset(); return false;">Restart</a></li>
 <li><a href="#" onclick="mode('controls'); return false;">Controls</a></li>
+<li><a href="#" onclick="game.halt = true; mode('title'); return false;">Quit</a></li>
+</ul>
+</div>
+<div id="gameover" class="hidden">
+  <h1>GAME OVER</h1>
+  <table>
+	<tbody>
+	  <tr>
+		<td></td>
+		<th scope="col">Lines</th>
+		<th scope="col">LPM</th>
+		<th scope="col">Max</th>
+	  </tr>
+	  <tr>
+		<th scope="row">This game:</th>
+		<td id="lines">0</td>
+		<td id="lpm">0</td>
+		<td id="max">0</td>
+	  </tr>
+	  <tr>
+		<th scope="row">Your best:</th>
+		<td id="hilines">0</td>
+		<td id="hilpm">0</td>
+		<td id="himax">0</td>
+	  </tr>
+	</tbody>
+  </table>
+  <p>
+<ul>
+<li><a href="#" onclick="game.reset(); return false;">Restart</a></li>
 <li><a href="#" onclick="game.halt = true; mode('title'); return false;">Quit</a></li>
 </ul>
 </div>
@@ -228,7 +282,7 @@ The row below moves and orients clockwise.
 Number keys move and orient to 180 degrees.
 </p>
 <p>
-Space, as ever, drops the tetrad instantly.
+Space drops the tetrad instantly.
 </p>
 <p>
 Once you get the hang of positioning tetrads, try auto-drop mode, where every
@@ -273,7 +327,8 @@ function mode(mode) {
     if(!game) {
       game = new KBTRIS(document.querySelector("#display"),
                         document.querySelector("#controls"),
-                        document.querySelector("#pausemenu"));
+                        document.querySelector("#pausemenu"),
+                        document.querySelector("#gameover"));
     }
     if(game.halt) {
       game.reset();
