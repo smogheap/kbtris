@@ -1,5 +1,5 @@
 {
-  "name":    "KBtris",
-  "version": "0.0.1",
-  "main":    "electron.js"
+	"name": "KBtris",
+	"version": "0.0.1",
+	"main": "electron.js"
 }
